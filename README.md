@@ -2,7 +2,7 @@
 
 **AI agents wake up with amnesia, and the people who hand work to each other aren't much better.**
 **CATBus is an open protocol for recovering and transferring working state, so when a session ends, a model runs out of tokens, or a role changes hands, the next owner picks up instead of starting over.**
-Messages carry the handoffs; a repository holds the memory. Today it's the messaging layer; state recovery and transfer are being designed in the open. [Why CATBus exists](docs/why.md)
+Messages carry the handoffs; a repository holds the memory. Today it's the messaging layer plus a draft memory and governance model ([`docs/memory.md`](docs/memory.md)); state recovery and transfer are being designed in the open. [Why CATBus exists](docs/why.md)
 
 ```
  /\\  /\\     [CATBUS]
@@ -22,7 +22,19 @@ Messages carry the handoffs; a repository holds the memory. Today it's the messa
 | Protocol | `catbus` **0.3.6** ([`schema/protocol-version.json`](schema/protocol-version.json)) |
 | Envelope | `v: "2"` |
 | License | MIT |
-| Repo | [`github.com/maxgebhardt/catbus`](https://github.com/maxgebhardt/catbus) |
+| Repo | [`github.com/catbusfleet-org/catbus`](https://github.com/catbusfleet-org/catbus) |
+
+## Memory: a transfer through time
+
+The bus moves context between agents. Memory moves it between an agent's past and its future: a message from an earlier state of an agent to a later version of the same agent that has amnesia. The draft model in [`docs/memory.md`](docs/memory.md) separates what is carried forward from what binds:
+
+- **Records** (memories and events) carry context, evidence, and decision rationale. Each has a permanent unique ID and access rules. Records are evidence, not governance, and never promote themselves into a tier.
+- **Governance tiers T0–T3** say what binds the future self. Authority descends (a lower number wins); evidence flows up. Moves are one tier at a time, and human approval gates every binding step.
+- **Local first, organizational overlay.** Each agent's local tiers are the default. Locally, T3 is self-approved, disclosed, and nonbinding, and T2 allows a narrow logged deviation for edge cases. An organizational overlay, when adopted, is human-approved and binding at every tier and wins over local unless it delegates down.
+- **Reality check.** No tier item is applied against verified reality. A conflict halts the affected action and goes to a human.
+- **Organizational loyalty and the law.** In an organizational deployment the agent serves the legal entity: it warns when an instruction conflicts with an organizational rule, records it, and follows the human unless the action would be unlawful. The law is the only hard stop.
+
+Untrusted text never becomes an instruction: see [`docs/secure-intake.md`](docs/secure-intake.md). The model is a draft; open questions are listed at the end of `docs/memory.md`.
 
 ## Transport
 
@@ -101,6 +113,8 @@ Also: [`docs/best-practices.md`](docs/best-practices.md) · [`docs/faq-anti-patt
 | [`docs/security.md`](docs/security.md) | Hierarchy, public vs private, defender principles |
 | [`docs/correlation.md`](docs/correlation.md) | Correlation IDs and `protocol-check` |
 | [`docs/roles.md`](docs/roles.md) | Sanitized public role names |
+| [`docs/memory.md`](docs/memory.md) | Draft memory and governance model: T0–T3 tiers, records, local and organizational scope, reality check |
+| [`docs/secure-intake.md`](docs/secure-intake.md) | Secure human intake: free text accepted only at one authenticated point |
 | [`docs/fleet-continuity.md`](docs/fleet-continuity.md) | Design draft: recover when part of the fleet goes down, move a job to a new agent, route by skill and budget |
 | [`schema/catbus-envelope.schema.json`](schema/catbus-envelope.schema.json) | Draft-07 envelope schema (v2) |
 | [`schema/signing.schema.json`](schema/signing.schema.json) | Optional signature object |
