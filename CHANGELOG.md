@@ -9,11 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/) on `schema/protoco
 
 ### Added
 
+- `docs/memory.md` (draft): memory and governance model. Governance tiers T0–T3 (authority descends, evidence flows up); records kept outside the tiers as evidence, with permanent IDs and access rules; local tiers as the default with an organizational overlay; reality check; one-tier moves with human approval; organizational loyalty bounded by the law. Opens with the framing of memory as a transfer through time, from an agent's earlier state to a later version of itself with amnesia. Docs only: no envelope change and no protocol-version pin change.
+- `docs/secure-intake.md` (draft): free text is accepted only at one authenticated human intake and becomes a signed, structured message; everything else is data. Docs only.
 - `docs/fleet-continuity.md` (design draft): recovering when part of a fleet goes down, and moving a job to a new agent. Covers no hub in the infrastructure but a hub in coordination, distributed agents, the split between the message bus and a record store, standard formats and checking what's real, governance, one boot point, what memory is (canon first, ratified by a human; governed context, not transcripts; measuring how much a receiver must rebuild), a recovery runbook with fencing and seating, a proposed handoff payload, and broadcasting and routing work by skill and budget. Docs only: no envelope change and no protocol-version pin change.
 - `docs/why.md`: why CATBus exists (recovering and transferring working state) and its principles. Docs only.
 
 ### Changed
 
+- README: adds a short memory section and links to `docs/memory.md` and `docs/secure-intake.md`; repo link now points to `catbusfleet-org/catbus`. Docs only.
 - README: the first lines now say why the project exists and link to `docs/why.md`. Docs only.
 - Name: CATBus now stands for **Cross-Agent Transfer Bus** (was Cross-Agent Tasking Bus), because the project is about transferring state, not only tasks. The protocol id stays `catbus`. The README banner, `docs/architecture.md`, and the envelope schema `description` text are updated. No envelope change and no protocol-version pin change.
 
