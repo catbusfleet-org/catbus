@@ -1,0 +1,18 @@
+{
+  "thread": "BOOT",
+  "note_locator": "path:boot/THREAD_SAMPLE.md",
+  "access": "seat",
+  "share": "NONE",
+  "sens": "INTERNAL",
+  "status": "active",
+  "lines": [
+    {
+      "order": 100,
+      "importance": 900,
+      "lake_id": "R-0001",
+      "hint": "pack placed on surface"
+    }
+  ],
+  "label": "EXAMPLE — not loaded",
+  "changed": "2026-10-24"
+}

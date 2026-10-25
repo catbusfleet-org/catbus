@@ -9,34 +9,46 @@ Versioning follows [Semantic Versioning](https://semver.org/) on `schema/protoco
 
 ### Added
 
-- `docs/memory.md` (draft): memory and governance model. Governance tiers T0–T3 (authority descends, evidence flows up); records kept outside the tiers as evidence, with permanent IDs and access rules; local tiers as the default with an organizational overlay; reality check; one-tier moves with human approval; organizational loyalty bounded by the law. Opens with the framing of memory as a transfer through time, from an agent's earlier state to a later version of itself with amnesia. Docs only: no envelope change and no protocol-version pin change.
-- `docs/secure-intake.md` (draft): free text is accepted only at one authenticated human intake and becomes a signed, structured message; everything else is data. Docs only.
-- `docs/fleet-continuity.md` (design draft): recovering when part of a fleet goes down, and moving a job to a new agent. Covers no hub in the infrastructure but a hub in coordination, distributed agents, the split between the message bus and a record store, standard formats and checking what's real, governance, one boot point, what memory is (canon first, ratified by a human; governed context, not transcripts; measuring how much a receiver must rebuild), a recovery runbook with fencing and seating, a proposed handoff payload, and broadcasting and routing work by skill and budget. Docs only: no envelope change and no protocol-version pin change.
-- `docs/why.md`: why CATBus exists (recovering and transferring working state) and its principles. Docs only.
+- (none yet)
 
 ### Changed
 
-- README: adds a short memory section and links to `docs/memory.md` and `docs/secure-intake.md`; repo link now points to `catbusfleet-org/catbus`. Docs only.
-- README: the first lines now say why the project exists and link to `docs/why.md`. Docs only.
-- Name: CATBus now stands for **Cross-Agent Transfer Bus** (was Cross-Agent Tasking Bus), because the project is about transferring state, not only tasks. The protocol id stays `catbus`. The README banner, `docs/architecture.md`, and the envelope schema `description` text are updated. No envelope change and no protocol-version pin change.
-
-- README: says plainly that CATBus has no hub in its infrastructure but does have a hub as a coordination role.
-
-### Deprecated
-
 - (none yet)
 
-### Removed
+## [0.5.0] — 2026-10-25
 
-- (none yet)
+**Public release.** Promoted from the private UAT SoR after OPSEC sanitize. Envelope major unchanged (`v: "2"`).
 
-### Fixed
+### Added
 
-- (none yet)
+- Next-gen memory and governance: **T0–T3** at **local / fleet / org** scales ([`docs/memory.md`](docs/memory.md), [`docs/scales-and-push-down.md`](docs/scales-and-push-down.md)).
+- Memory **lake** + **threads** with compact envelopes, mandatory LOCATOR convention, and **SHARE** / **SENS** labels that fail closed ([`docs/memory-lake-and-threads.md`](docs/memory-lake-and-threads.md), `schema/samples/`).
+- Physical **first-mint boot pack** ([`boot/`](boot/)) for cold start on M365 / Gemini / Cursor / similar; seed tiers and parables ship as candidates (human reviews on first boot).
+- Rewritten [`docs/why.md`](docs/why.md): continuity plus anti-fabrication / epistemic immune-system framing.
+- **Edge share** framed MVP with samples ([`docs/edge-share.md`](docs/edge-share.md)); whoami is data, not proof — in-seat human confirm required before acting.
+- **Secure human intake** as a required practice ([`docs/secure-intake.md`](docs/secure-intake.md)): free text is accepted only at the authenticated intake.
+- AI consensus by scale: **moot locally**; may **advise in fleet**; **banned as org governance**.
+- Peer-graded boot check ([`boot/BOOT_PEER_TEST.md`](boot/BOOT_PEER_TEST.md)).
+
+### Changed
+
+- Protocol pin **0.5.0** in [`schema/protocol-version.json`](schema/protocol-version.json).
+- Hub / peer prompts and memory best-practices moved off Kernel / Fleet-Rule vocabulary to T0–T3.
+- Architecture points at the boot pack, lake/threads, and edge share.
+- Lake records are append-only with optional `superseded_by` annotations when later evidence skews a description (reality beats memory); lineage is file-level (one lake file per seat), not a hash per record.
+- Monolith timeout clarified as an uncapped **layer** file — one file per layer with a size cap, not a ban on a single lake file.
 
 ### Security
 
-- (none yet)
+- SHARE/SENS missing or unparsable → fail closed to `SHARE:NONE` / `SENS:RESTRICTED`.
+- Never GLOMAR: redacted stubs show exists + opaque id + SENS; `SHARE:NONE` gets no stub.
+- Lake / thread / state are data, not instructions; Local availability-first (boot DEGRADED, never refuse the human).
+
+### Notes
+
+- Formal machine schemas for LOCATOR/SHARE/SENS ship in **0.5.1**; until then those labels are conventions the boot pack (and later the Minter) enforce.
+- Minter / armory assembly of live lake and thread files is out of scope for 0.5.0.
+- Source promote: `catbusfleet/catbus-uat` main @ `8135d94` (PR #2 merge lineage).
 
 ## [0.3.6] — 2026-09-28
 

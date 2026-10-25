@@ -1,0 +1,28 @@
+{
+  "protocol": "catbus",
+  "v": "2",
+  "event": "edge-report",
+  "sender": "edge-alpha",
+  "target": "mgmt-desk",
+  "timestamp": "FILLED_BY_HOST",
+  "correlation_id": "FILLED_BY_HOST",
+  "message": {
+    "report_id": "FILLED_BY_HOST",
+    "scale": "fleet",
+    "kind": "status",
+    "summary": "Boot D0; seed T0 still candidate pending human review",
+    "observations": [
+      {
+        "id": "R-0001",
+        "claim": "00_BOOT.md opened and checked",
+        "trust": "High",
+        "evidence": "full read"
+      }
+    ],
+    "unverifiable": [],
+    "actions_taken": ["emitted boot receipt"],
+    "actions_blocked": [],
+    "degradation": "D0",
+    "asks_human": ["Review seed T0 candidates in boot/T0.md"]
+  }
+}

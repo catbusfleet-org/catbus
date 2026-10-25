@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://github.com/maxgebhardt/catbus/schema/secure-payload.schema.json",
+  "$id": "https://github.com/catbusfleet-org/catbus/schema/secure-payload.schema.json",
   "title": "CATBus secure payload patterns (public)",
   "description": "Illustrative sterile-bus payload shapes. No secrets, PHI, PANs, or credentials. Domains in examples: example.com only. See docs/secure-payload.md.",
   "type": "object",
@@ -51,7 +51,7 @@
     },
     "authority": {
       "type": "string",
-      "description": "URL of the repository copy of the protocol pin and best practices (public default: https://github.com/maxgebhardt/catbus).",
+      "description": "Authority URL for protocol pin / best practices (public default: GitHub catbus).",
       "maxLength": 256
     },
     "ok": {
@@ -95,7 +95,7 @@
     },
     "remote_version": {
       "type": "string",
-      "description": "Remote protocol semver read from that repository.",
+      "description": "Remote protocol semver from authority.",
       "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
     }
   }

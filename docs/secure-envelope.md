@@ -1,12 +1,14 @@
 # Secure envelope protocol (OPTIONAL — advised against)
 
-**Naming.** These three terms are different:
+**Naming clarification:**
 
-| Term | Meaning |
-|------|---------|
-| **Envelope** (CATBus v2) | The normal cleartext JSON object (`v`, `event`, `correlation_id`, …). It stays human-readable. |
-| **Secure payload / sterile payload** | Rules for what may appear in cleartext `payload`. See [`secure-payload.md`](secure-payload.md). |
-| **Secure envelope (opaque)** | An optional wrapper that encrypts or otherwise hides payload bytes from ordinary inbox review. **This document.** |
+| Term | Meaning in CATBus |
+|------|---------------------|
+| **Envelope** (CATBus v2) | The normal cleartext JSON object (`v`, `event`, `correlation_id`, …) — always human-skimmable. |
+| **Secure payload / sterile payload** | Rules for what may appear in cleartext `payload` — [`secure-payload.md`](secure-payload.md). |
+| **Secure envelope (opaque)** | An optional wrapper that encrypts or otherwise hides payload bytes from casual inbox review. **This document.** |
+
+CATBus uses `secure-payload` for cleartext sterility rules and **secure envelope** for the optional opaque wrapper, so the two are never confused.
 
 ---
 
@@ -15,8 +17,8 @@
 | | |
 |--|--|
 | **Status** | **OPTIONAL** |
-| **Recommendation** | **Advise against** for normal hub operations |
-| **Why** | Opaque envelopes remove human review of the thread. Review of plain JSON, including human **GO**, is part of how this protocol is operated. Prefer **cleartext sterile payloads** plus **optional signing** ([`secure-payload.md`](secure-payload.md), [`signing.md`](signing.md)). |
+| **Recommendation** | **Advise AGAINST** for normal hub ops |
+| **Why** | Opaque envelopes **knock down human reviewability** — a core CATBus property (phone-skimmable threads, HITL GO). Prefer **cleartext sterile payloads + optional signing** ([`secure-payload.md`](secure-payload.md), [`signing.md`](signing.md)). |
 
 Threat model (**MUST**): [`threat-model.md`](threat-model.md).
 
@@ -24,18 +26,18 @@ Threat model (**MUST**): [`threat-model.md`](threat-model.md).
 
 ## When a secure envelope might still be considered
 
-Rare cases only, with the tradeoff stated:
+Rare cases only, with eyes open:
 
-- A short secret pointer must move and cannot wait for an out-of-band handoff, and the mailbox is not an acceptable cleartext surface.
-- An intermediate mail server must not see one field. An out-of-band store is still the better path.
+- Regulatory need to transit a short secret pointer that cannot wait for a vault handoff **and** the mailbox is not an acceptable cleartext surface.
+- Cross-org handoff where intermediate MTAs must not see a field — still prefer out-of-band vault.
 
-Even then: keep the **outer** CATBus envelope cleartext (`event`, correlation, sender, and target visible). Put opacity only in a nested field if you must. Document recovery for the human owner. Never use opacity to bypass GO.
+Even then: keep the **outer** CATBus envelope cleartext (event, correlation, sender, target visible); put opacity only in a nested field if you must; document recovery for the human owner; never use opacity to bypass GO.
 
 ---
 
 ## If you implement anyway (pattern only)
 
-Illustrative. This is not a recommendation to enable the feature.
+Illustrative — not a recommendation to enable:
 
 ```json
 {
@@ -55,21 +57,21 @@ Illustrative. This is not a recommendation to enable the feature.
 }
 ```
 
-Rules if a human explicitly enables it:
+Rules if enabled:
 
-1. The outer envelope stays schema-valid and readable (`event`, parties, and correlation visible).
-2. Do not expect the hub to route on inner meaning without decrypting.
-3. Human GO for consequential acts stays on a **cleartext** channel. GO cannot live only inside ciphertext.
-4. Keys stay off the bus. Do not publish live key identifiers in public docs.
-5. Default policy: **reject** `secure_envelope` unless the human owner explicitly enables it.
+1. Outer envelope remains schema-valid and skimmable (`event`, parties, correlation visible).
+2. Ciphertext carries **no** expectation of hub semantic routing on inner content without decrypt.
+3. Human GO for consequential acts must still have a **cleartext** channel (in-thread GO cannot be “inside” ciphertext only).
+4. Keys off-bus; never publish live `kid` values in public docs.
+5. Default fleet policy: **reject** `secure_envelope` unless explicitly seated by human owner.
 
 ---
 
-## Preference hierarchy
+## Preference hierarchy (hub ops)
 
-1. **Threat model** — required
-2. **Cleartext sterile payload** — use this
-3. **Message signing + chain hash** — optional, recommended
-4. **Opaque secure envelope** — optional, **advised against**
+1. **Threat model** — must  
+2. **Cleartext sterile payload** — prefer  
+3. **Message signing + chain hash** — optional, recommend  
+4. **Opaque secure envelope** — optional, **advise against**
 
-For hub operations, reviewability is a security control. Opacity is not the default and is not a stronger mode of this protocol.
+Do not market opaque envelopes as “more secure CATBus.” For hub ops, reviewability is a security control.

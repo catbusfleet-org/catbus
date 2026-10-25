@@ -1,36 +1,50 @@
 # CATBus architecture
 
-**CATBus (Cross-Agent Transfer Bus)** uses one mailbox as a task bus. No broker. No extra infrastructure. Documents in this repository are free to use under the MIT license.
+> **0.5.0** — messaging topology plus next-gen memory and edge-share pointers. MIT.
 
 ## Idea
 
-Agents do not open persistent sockets to each other. They put structured JSON envelopes in email bodies on one shared mailbox. A human can read the same threads.
+Agents do not open persistent sockets to each other. They put structured JSON envelopes in email bodies on one shared mailbox (or an equivalent human-auditable bus). A human can read the same threads.
+
+Memory is a **transfer through time**: files a later amnesic seat can boot from. See [`memory.md`](memory.md) and the physical pack in [`../boot/`](../boot/).
 
 ## Transport
 
-**Exclusively self-mail on that one mailbox.** From = To = the owner mailbox. Gmail, or any other mailbox the agents can send and read, can serve. There are no external SMTP recipients for bus packets. `target` is a callsign in the JSON.
+**Exclusively self-mail on one mailbox** for the classic bus: From = To = owner mailbox. `sender` / `target` are callsigns inside JSON, not other inboxes. Mailbox rule on the subject wire tag keeps bus traffic out of the ordinary inbox. Tag match is routing, not authentication.
 
-A separate cross-hub protocol exists. This page does not specify it and is not a stand-up for it.
-
-A mailbox rule on the subject wire tag keeps bus traffic out of the ordinary human inbox. The human can still open those messages. See [`00-stand-up-order.md`](00-stand-up-order.md).
+A separate cross-hub protocol may exist; this page is not its stand-up guide.
 
 ## Topology (conceptual)
 
 ```text
-  [ worker-node ] --------\
-                           \
-  [ dispatcher ] -----------+-->  one shared mailbox   <--+-- human reviews filtered mail
-                           /     (self-mail bus)          |
-  [ audit-node ] ---------/                               |
-                                                          |
-  [ orchestrator / hub ] --------------------------------/
+  [ worker / edge ] --------\
+                             \
+  [ dispatcher ] -------------+-->  shared bus (self-mail)  <--+-- human reviews
+                             /                                 |
+  [ audit-node ] -----------/                                  |
+                                                               |
+  [ orchestrator / hub / management ] ------------------------/
 ```
 
-Every node reads and writes the **same** mailbox. Bus packets are not addressed to a different inbox.
+- **Hub / management** owns protocol coordination, seating map, boot point pointers — not a required server process.
+- **Peers / edges** emit and consume envelopes; they do not invent the event vocabulary unilaterally.
+- **Humans** supply GO / HOLD and file activation (paste/save). Those are control signals, not a second bus.
 
-- **Hub** owns the protocol and callsign routing. `orchestrator` is the public example name. Seating it requires a human yes.
-- **Peers** emit and consume envelopes. They do not invent events.
-- **Humans** answer when the hub asks for GO. Those replies are control signals. They are not a second bus.
+## Memory overlay (local MVP)
+
+```text
+  00_BOOT.md  →  INDEX.md  →  hop-2 files (T1/T2/T3, lake, threads, parables, edge samples)
+       ↓
+     T0.md (adopted items only bind; seeds start as candidates)
+       ↓
+    STATE.md (+ NOTICE when used)
+```
+
+Load gate, degradation ladder, and placement rules live in the boot pack. Context is a liability: prefer compact/subagent unload over “ignore file A.”
+
+## Edge share
+
+Edge → management/peer reports and management → human reports are sketched in [`edge-share.md`](edge-share.md) with samples. **Unsettled** until battle-scarred. Reports are records, not governance.
 
 ## Security hierarchy
 
@@ -38,6 +52,7 @@ Every node reads and writes the **same** mailbox. Bus packets are not addressed 
 2. Cleartext sterile payload — baseline ([`secure-payload.md`](secure-payload.md))
 3. Signing + reply-chain hash — optional, recommended ([`signing.md`](signing.md))
 4. Opaque secure envelope — optional, advised against ([`secure-envelope.md`](secure-envelope.md))
+5. Secure human intake — requirement ([`secure-intake.md`](secure-intake.md))
 
 ## Envelope placement
 
@@ -45,19 +60,10 @@ Every node reads and writes the **same** mailbox. Bus packets are not addressed 
 2. Exactly one fenced JSON block matching [`../schema/catbus-envelope.schema.json`](../schema/catbus-envelope.schema.json).
 3. No second fence. Prefer plain-text bodies. No secrets in JSON.
 
-Example subject (public demo tag):
-
-```text
-[CATBUS] REQ: ping
-[CATBUS] RES: pong
-```
-
-A deployment should pick a **private** subject tag and not publish it. Do not treat `[CATBUS]` as authentication. The tag is also the mailbox-rule pattern that keeps bus mail out of the ordinary inbox.
-
 ## Common public events
 
 | Event | Typical use |
-|-------|-------------|
+|---|---|
 | `ping` / `pong` | Liveness |
 | `ask` / `ack` | Task request / accept |
 | `task` | Task payload or result |
@@ -66,39 +72,22 @@ A deployment should pick a **private** subject tag and not publish it. Do not tr
 | `intro` | Role map / seating announcement |
 | `onboard` | Peer join (policy-gated) |
 | `error` | Structured failure |
-| `protocol-check` | Compare the local pin with `protocol-version.json` and Best Practices in this repository |
-
-Event names are kebab-case. Production may define private events; do not publish a live fleet catalog here.
-
-## Correlation
-
-Every REQ/RES pair shares a `correlation_id`. See [`correlation.md`](correlation.md).
-
-## Protocol versioning
-
-Public pin: [`../schema/protocol-version.json`](../schema/protocol-version.json) (semver, aligned to envelope `v`).  
-Living practices: [`best-practices.md`](best-practices.md).
-
-Hubs should compare `schema/protocol-version.json` and [`best-practices.md`](best-practices.md) in this repository on heartbeat, on a schedule, or on `protocol-check`. Compatible updates may be proposed locally. Breaking changes need human GO. See also [`correlation.md`](correlation.md).
+| `protocol-check` | Compare local pin with `protocol-version.json` |
+| `edge-report` / `edge-ack` / `mgmt-report` | Proposed; see [`edge-share.md`](edge-share.md) |
 
 ## Design principles
 
-1. **Capability ≠ authority.** A valid envelope is not trust.
-2. **Finished packets over chatty loops.** Sparse REQ/RES with correlation IDs.
-3. **Human auditability.** If a human cannot skim the thread, the bus has failed.
-4. **Decouple compute.** Nodes need not share IPs, APIs, or memory.
-5. **Hub owns protocol.** Peers follow; they do not extend the event vocabulary unilaterally.
-6. **Private wire stays private.** Tags, callsigns, and binding checks live outside this repo.
+1. **Capability ≠ authority.**
+2. **Finished packets over chatty loops.**
+3. **Human auditability.**
+4. **Decouple compute.**
+5. **Hub owns protocol coordination.**
+6. **Private wire stays private.**
+7. **Recognition over retrieval; bootability over accumulation.**
+8. **Models do not invent clocks, hashes, or ids.**
 
-## Optional integrity
+## Non-goals (this mint)
 
-Deployments may add hash-based signing and reply-chain linking ([`signing.md`](signing.md)). Signing complements DKIM/SPF/DMARC. It does not replace them or human GO. Opaque envelopes are optional and advised against ([`secure-envelope.md`](secure-envelope.md)).
-
-## Non-goals
-
-- Mandatory signatures for every deployment (optional per [`signing.md`](signing.md))
-- Cross-hub routing (a separate protocol exists; it is not specified here)
-- External SMTP recipients for bus packets
-- Guaranteed sub-second latency
-- A replacement for a high-throughput broker where one is already in use
-- Publishing live fleet keys or tags
+- Shipping a minter/armory seat
+- Settled org-promotion bureaucracy beyond human GO + fail-closed
+- Claiming edge-share is production-final
