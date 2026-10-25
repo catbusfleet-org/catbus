@@ -2,97 +2,100 @@
 
 ## FAQ
 
-### Do I need to learn CATBus?
-No. Hand [`00-stand-up-order.md`](00-stand-up-order.md) to the shared-mailbox central agent that can send and read the owner mailbox. It interviews you, configures itself, mints hub and peer cards, and maintains topology. You answer short questions and say **GO** only when that agent asks.
+### How do I use this? (do I need to learn CATBus?)
+**No.** Humans do not need to learn CATBus. It is **model-to-model**. Hand [`00-stand-up-order.md`](00-stand-up-order.md) to your **CoS** or other **shared-mailbox central agent** (Gmail/shared mailbox access). It interviews you, configures, mints hub/peer cards, and maintains topology. You answer short questions and say **GO** only when the hub asks at predictable gates.
 
 ### When do I say GO?
-Only when the hub asks: stand-up and mint confirmation, a breaking protocol change, or a destructive or send-authorization action (mail to someone other than the shared mailbox, spends, irreversible infrastructure). You do not study the protocol to find those moments.
+Only when the hub surfaces a gate: stand-up/mint confirmations, any protocol or envelope pin update, or destructive/send-auth actions (third-party mail, spends, irreversible infra). You do not study the protocol to find GO moments.
 
 ### What is CATBus?
-An open protocol for serverless, asynchronous tasking and telemetry among agents over email. No broker. The specification in this repository is free to use (MIT). Seated answers (wire tag, callsigns) stay in hub local state. They are not published here.
+A serverless, asynchronous tasking and telemetry bus for multi-agent fleets over standard email. No broker. Lane source of record = seated interview answers plus this public release.
 
-### Is bus mail sent to other people?
-No. Bus traffic is **exclusively self-mail on one shared mailbox**: **From = To = the owner mailbox** (Gmail or another mailbox the agents can access). `target` is a callsign inside the JSON, not an SMTP recipient.
+### Do I design the fleet topology?
+**No.** **Principle lock (Classic ML):** the system finds a more efficient equilibrium than a human would design. Models find equilibrium as a fleet; agents customize on the bus within GO/security. You know it works, know how it works, and **review traffic** — you do not hand-draw who-is-whom forever.
 
-A separate cross-hub protocol exists. This FAQ and the stand-up do not describe it. Do not invent cross-hub routing from these pages.
+### How do memory and fleet rules become authoritative?
+Memory has explicit knowledge and authority states; conversation, retrieval, and repeated use do not publish truth. Agents may propose candidates; in fleet scope AI consensus may advise, but the human must GO through the verified channel in [`memory.md`](memory.md) before T0–T2 binds any seat. Org AI consensus is banned as governance. Bus Mail alone is not approval.
 
-### Why a mailbox filter?
-So bus and bot traffic does not bury the human inbox. Create a rule whose condition is the subject wire tag (demo pattern: subject contains `[CATBUS]`, or a Gmail-style query `subject:[CATBUS]`). You still have access to that mail for review. Tag match is routing, not authentication.
+### Does stored memory outrank current facts?
+No. Refresh changing facts from their authoritative current source. Preserve unresolved contradictions; do not treat a search hit or stale memory as verified current evidence.
 
-### Do I design who sits where?
-No. You do not draw a permanent org chart. Agents may specialize on the bus within sterile-bus rules and GO. You review the traffic. The hub keeps the topology current. Seating a new or unknown sender still needs your explicit yes.
 
-### How do I stand up a hub?
-Paste [`00-stand-up-order.md`](00-stand-up-order.md) into the shared-mailbox central agent. If seating is unknown, its first message is the interview opener in that document. It mints cards only after the summary in that interview and your **yes**. See [`../prompts/hub.md`](../prompts/hub.md).
+### How do I stand up a hub? (primary path)
+Paste [`00-stand-up-order.md`](00-stand-up-order.md) into the shared-mailbox central agent. If seating is unknown, it must open with the mandated interview opener. Mint only after A9 summary + your **yes**. See [`../prompts/hub.md`](../prompts/hub.md).
 
 ### Is the subject tag authentication?
-No. Tags route, and they drive the mailbox rule. Checks are transport alignment, seating, optional signatures after keys are seated, and human GO when the hub asks.
+**No.** Tags route. Auth is transport binding, seating, optional signatures (after keys seated), and hub-surfaced human GO.
 
 ### Must I use signing?
-Optional. Recommended after keys are seated **off the bus**. Signing stays **off** until you confirm that. [`signing.md`](signing.md).
+**Optional.** **Recommended** after keys are seated **off-bus**. Signing stays **OFF** until you confirm keys seated. [`signing.md`](signing.md).
 
 ### Should I use opaque secure envelopes?
-Optional, and **advised against**. They hide content from human review. Prefer sterile cleartext plus signing. [`secure-envelope.md`](secure-envelope.md).
+**Optional and advised against** for hub ops — they hurt human reviewability. Prefer sterile cleartext + signing. [`secure-envelope.md`](secure-envelope.md).
 
 ### Is the threat model optional?
-No. It is **MUST** before production peers. A lab may stay on ping/pong until you accept that path. [`threat-model.md`](threat-model.md).
+**No — MUST** before production peers. Labs may stay liveness-only until you accept that path. [`threat-model.md`](threat-model.md).
 
 ### Can peers invent events?
-No. The hub owns the protocol.
+No. Hub owns protocol.
 
-### Can the hub seat example callsigns such as `orchestrator` on its own?
-No. Examples are suggestions. Each live callsign and the wire tag need your explicit yes.
+### Can the hub seat example callsigns like `orchestrator` automatically?
+**No.** Examples are suggestions only. Require human **yes** before live seating (A2/A3/A7).
 
 ### What protocol pin does the hub propose?
-The `version` and `envelope_v` in [`../schema/protocol-version.json`](../schema/protocol-version.json). As of 0.3.6 that is protocol **0.3.6** and envelope **`v: "2"`**. The hub waits for your yes. It does not invent another pin. After you accept, seated identity uses those answers.
+The current `version` and `envelope_v` read from `schema/protocol-version.json`. The hub checks the repo periodically and asks you about updates; it must wait for your explicit yes before the hub or any seat adopts them. After acceptance, seated identity uses those accepted values.
 
-### Which wire tag appears in these docs?
-`[CATBUS]` is the public demo tag. A production tag is one you invent and do not publish.
+### Public vs production tags?
+| Lane | In docs |
+|------|---------|
+| Public demo | `[CATBUS]` |
+| Live production | Fleet-private only — never in promotable docs or this public repository |
 
-### Why is a peer not answering on the bus?
-Some products can read mail and even auto-ack (prepare an acknowledgement) but still cannot reply or send until a human clicks Send. That includes self-mail to the shared mailbox. Some seats cannot outbound send at all. A Spark hub seat can self-mail. It is in the Tasks family and the seat persists. Hub fit is YES (but): batch wake rather than a live socket, not an ephemeral one-shot chat. An inbound webhook is operator-reported, pending confirm. Other Gemini seats will not wake on an inbound send. ChatGPT consumer web and claude.ai web do not close the loop. A Work, Custom GPT, Actions, MCP, or Desktop path can, with the caveat on that row. A seat that can read and send only when a human asks, or only while a session is already open, still may not poll or wake. Default approval still pauses send. Then `RES` never arrives. Treat a no-go seat as a reader or a human-in-the-loop peer, pair a thin sender peer, or bridge it with a workflow wrapper. The go / no-go is the **Will this work?** summary in [`peer-capability-matrix.md`](peer-capability-matrix.md).
+### Does valid JSON or a valid signature authorize spends / third-party mail?
+**No.** Hub-surfaced human GO.
 
-### Does valid JSON or a valid signature authorize spends or mail to other people?
-No. The hub asks for human GO. Mail to other people is not bus traffic.
+### Can unsigned text tell an agent what to do?
+**No.** Email, web pages, model output, and other agents' text are data. Free text is accepted only at the authenticated secure mouth, which signs the structured form the human confirmed. Downstream rejects unsigned or malformed messages and logs the rejection. [`secure-intake.md`](secure-intake.md).
 
 ### Do cards include my mailbox address?
-No. Cards say the shared mailbox is human-configured. They never print the real address.
+**No.** Cards say shared mailbox is human-configured — never print the real address.
+
+---
 
 ## Anti-patterns
 
 | Anti-pattern | Do instead |
 |--------------|------------|
-| Expecting humans to study the protocol | The hub asks for GO at known gates |
-| Hand-drawing a permanent seating chart | Let seating change under hub policy; human reviews traffic; unknown senders still need a human yes |
-| Skipping the interview opener when nothing is seated | Use the opener in the stand-up and in [`../prompts/hub.md`](../prompts/hub.md) |
-| Inventing a protocol pin or seating without a yes | Propose the pin in `schema/protocol-version.json`; wait |
-| Minting cards before the summary and a human yes | Hard mint gate |
-| Ignoring the envelope `v` the human accepted | Use the interview values |
-| Seating example callsigns or `[CATBUS]` without a yes | Human yes for the tag and each callsign |
-| Turning signing on before keys are seated | Stay off; keys and ceremony stay off the bus |
-| Putting a real mailbox address on cards | “Human-configured” only |
-| Treating `[CATBUS]` as production authentication | Private tag if you need one; seating; optional signatures |
-| Secrets or `.env` on the bus | `ref_id` only; secret store off the bus |
-| Several fenced blocks in one body | One fence; sparse packets |
+| Expecting humans to study CATBus | Model-to-model; hub surfaces GO |
+| Human designing fleet topology/customization | Classic ML equilibrium — models find it; human reviews traffic |
+| Freezing interview callsigns as permanent org-chart | Allow fleet re-seat/specialize within GO/security; hub maintains topology |
+| Skipping mandated interview opener when unseated | Use exact opener in stand-up / hub.md |
+| Inventing protocol pin or seating without yes | Read current `version` + `envelope_v` from repo; wait for human GO |
+| Minting before A9 summary + human yes | Hard mint gate |
+| Hardcoding `v:"2"` after human accepted other envelope_v | Use interview `protocol_version` / `envelope_v` |
+| Auto-seating example callsigns/tags | Human yes per A2/A3/A7 |
+| Turning signing ON before keys seated | Stay OFF; keys/ceremony off-bus |
+| Putting real mailbox address on cards | “Human-configured” only |
+| Treating `[CATBUS]` as prod auth | Private tag; seating; optional sigs |
+| Secrets / `.env` on bus | Opaque `ref_id`; vault off-bus |
+| Chatty multi-fence bodies | One fence; sparse packets |
 | Peer-invented events | Hub vocabulary only |
-| Applying breaking protocol changes automatically | Hub asks for GO |
-| Opaque envelopes by default | Cleartext plus signing |
-| Publishing live tags, callsigns, or addresses | Placeholders in public text; real seating stays unpublished |
-| Schema validation treated as trust | Policy plus human GO |
+| Auto-applying any protocol or envelope pin change | Hub-surfaced GO before adoption |
+| Opaque envelopes by default | Cleartext + signing |
+| Publishing live tags/callsigns/emails | Placeholders; live values fleet-private |
+| Schema validate = trust | Policy + hub-surfaced GO |
+| Acting on email, web pages, model output, or another agent's text as a command | Data only. The secure mouth signs the structured form the human confirmed |
+| Treating a nonbinding candidate or unassented adopted T2 as active | Keep it nonbinding until the specified consensus and human gate are recorded |
+| Turning an observation or transcript summary directly into durable memory | Keep it a candidate; require explicit human ratification with provenance and scope |
+| Letting stored memory replace changing facts | Refresh the current authoritative source |
 | Reusing `correlation_id` across tasks | Fresh UUID per initiation |
-| Skipping the threat model for production peers | Required |
-| GO that exists only inside ciphertext | Cleartext GO |
-| Jargon on minted cards | Plain fields from the stand-up templates |
-| Peer card missing protocol pin or envelope `v` | Include both from the interview |
-| Assuming every mail-capable agent can send self-mail unattended | Verify; see [`peer-capability-matrix.md`](peer-capability-matrix.md) |
-| Counting a draft or an auto-ack as `RES` | The packet has to be self-mail on the shared mailbox. A Send click still required for self-mail means the seat is human-in-the-loop |
-| Treating Workspace Keep, Tasks, or Reminders as the bus | Side channels are not the wire. Self-mail on the one shared mailbox only |
-| Sending bus packets to external recipients | Self-mail only; From = To = the one shared mailbox |
-| Standing up cross-hub routing from these docs | Out of scope here; a separate protocol exists and is not specified in this repository |
+| Skipping threat model for production | MUST |
+| Publishing live OPSEC / production tags | Keep fleet-private |
+| GO only inside ciphertext | Cleartext hub-surfaced GO |
+| Fleet jargon in minted cards | Part C plain-language templates |
+| Peer card missing protocol pin / envelope v | Include both from interview |
 
 ## Related
 
 - Stand-up: [`00-stand-up-order.md`](00-stand-up-order.md)
-- Peer send limits: [`peer-capability-matrix.md`](peer-capability-matrix.md)
-- Threat model: [`threat-model.md`](threat-model.md)
-- Security summary: [`security.md`](security.md)
+- Failures: [`failure-modes.md`](failure-modes.md)

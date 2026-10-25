@@ -1,0 +1,15 @@
+{
+  "id": "R-0001",
+  "note_locator": "path:boot/LAKE_SAMPLE.md",
+  "title": "First-mint pack placed on surface",
+  "body": "Human pasted the boot flat files into a folder the model can open. Cold boot path available. Boot from 00_BOOT.md; do not invent missing files.",
+  "status": "candidate",
+  "created": "2026-10-24",
+  "updated": "2026-10-24",
+  "rev": "boot",
+  "share": "NONE",
+  "sens": "INTERNAL",
+  "src": "human placement High 2026-10-24",
+  "app": "none",
+  "label": "EXAMPLE — not loaded"
+}

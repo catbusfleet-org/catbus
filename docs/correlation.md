@@ -1,14 +1,14 @@
 # Correlation IDs
 
-CATBus ties request and response packets with an opaque `correlation_id`. Those packets are still self-mail on one shared mailbox (From = To). The id does not add SMTP recipients.
+CATBus ties request and response packets with an opaque `correlation_id`.
 
 ## Rules
 
-1. **Issuer creates the ID.** The agent that sends the initiating event (e.g. `ping`, `ask`) generates a fresh `correlation_id` (prefer UUID).
-2. **Responder echoes it.** The matching response (`pong`, `ack`, `task` result, `error`) must reuse the same `correlation_id`.
-3. **Optional `in_reply_to`.** Responders may set `in_reply_to` to the prior event name (e.g. `"ping"`) for human skimability; correlation_id remains authoritative.
-4. **TTL is soft.** `ttl_seconds` is a hint. Late packets may still be useful for audit; hubs decide whether to honor expiry.
-5. **One conversation, many packets.** A long-running task may emit multiple telemetry packets sharing the original correlation_id, or mint child IDs documented in `payload` — keep the convention consistent within a fleet and private.
+1. **Issuer creates the ID.** Initiating event (`ping`, `ask`, …) gets a fresh UUID.
+2. **Responder echoes it.** Matching `pong` / `ack` / result / `error` reuses the same id.
+3. **Optional `in_reply_to`.** Prior event name for skimability; correlation_id remains authoritative.
+4. **TTL is soft.** `ttl_seconds` is a hint.
+5. Keep convention consistent within a fleet; do not encode secrets in IDs.
 
 ## Example
 
@@ -47,20 +47,4 @@ Response:
 
 ## Optional event: `protocol-check`
 
-Use `protocol-check` when a hub or peer wants an explicit version/Best Practices comparison (also fine to fold into `heartbeat` / `telemetry`).
-
-1. Sender includes local pin in `payload` (e.g. `local_version`, `envelope_v`, optional `bp_checked_at`).
-2. Same `correlation_id` rules: issuer mints; responder echoes.
-3. Response is typically `telemetry` or `ack` with `payload.remote_version`, `payload.newer` (bool), and a short human `message` — never auto-apply breaking changes.
-4. If newer Best Practices exist, prefer a sparse `ask` to the human owner summarizing the delta and requesting GO for breaking upgrades.
-
-Example request payload shape (illustrative):
-
-```json
-{
-  "local_version": "0.3.0",
-  "envelope_v": "2",
-  "authority": "https://github.com/maxgebhardt/catbus"
-}
-```
-
+Sender includes local protocol and envelope pins in `payload`; responder echoes `correlation_id`. Never auto-apply a pin update, compatible or breaking. Proactively `ask` the human with the delta and wait for explicit GO before the hub or any seat adopts it.
