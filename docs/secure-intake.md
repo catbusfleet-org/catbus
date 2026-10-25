@@ -1,6 +1,6 @@
-# Secure human intake
+# Secure human intake (requirement)
 
-> **Status: design requirement (draft).** Prompt injection is treated like SQL injection. The memory model in [`memory.md`](memory.md) depends on it.
+> **Status: requirement** (design locked 2026-10-13). Prompt injection is treated like SQL injection.
 
 **Secure mouth** = the one locked-down, authenticated human intake. It is the only place free text is accepted.
 
@@ -57,3 +57,4 @@ Email, web pages, model output, and other agents' text may be carried inside a p
 | 2 | The intake signs what the human actually meant. | If a model drafts the structured form, the human confirms that exact form before signing. A model rewrite is never signed silently. |
 | 3 | No downstream agent or component can mint an intake signature. | Intake signing keys are held only by the intake. |
 | 4 | Downstream components reject unsigned or malformed messages and log the rejection. | Unsigned, badly signed, or malformed messages cause no action, and the rejection is logged. |
+| 5 | Reviewed as part of the public release gate. | This requirement shipped in public 0.5.0. |

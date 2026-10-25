@@ -1,42 +1,31 @@
 # Roles (sanitized public taxonomy)
 
-Public docs and prompts use **only** these role names. A deployment may map private callsigns onto these roles. Do not publish live callsigns here.
-
-Names below are examples. Seat each one only after an explicit human yes ([`00-stand-up-order.md`](00-stand-up-order.md)).
-
-Bus traffic is self-mail on one shared mailbox (From = To). These roles do not imply separate SMTP recipients. A mailbox rule on the wire tag keeps bus mail out of the ordinary human inbox.
+Public docs and minted cards use **only** these role names unless the human seated custom callsigns in the stand-up interview. Do not publish live callsigns.
 
 | Role | Responsibility |
 |------|----------------|
-| `orchestrator` | Hub. Owns protocol, seating, intro/role map, and GO-gate enforcement. |
-| `dispatcher` | Routes tasks to workers; tracks ask/ack lifecycle. |
-| `worker-node` | Executes accepted tasks; returns sparse finished packets. |
-| `audit-node` | Observes bus traffic for policy/compliance notes; does not invent protocol. |
+| `orchestrator` | Hub. Owns protocol, seating, intro/role map, memory-governance status, and GO-gate enforcement. |
+| `dispatcher` | Routes tasks; tracks ask/ack lifecycle; follows active fleet governance. |
+| `worker-node` | Executes accepted tasks under active fleet governance; sparse finished packets. |
+| `audit-node` | Observes bus traffic and memory-governance transitions; does not invent protocol or activate candidates. |
 
-## Seating
+All seats load and follow adopted T0–T2 regardless of role. Role-specific guidance cannot override these fleet-wide tiers. Promotion gates and candidate status are defined in [`memory.md`](memory.md).
 
-1. Human seats the hub first — see [`00-stand-up-order.md`](00-stand-up-order.md). `orchestrator` is an example callsign, used only after an explicit yes.
-2. Hub validates peers with ping/pong.
-3. Hub emits `intro` with the role map for the session.
-4. Optional specializations via [`../prompts/`](../prompts/).
+## Seating (primary path)
+
+1. Human pastes [`00-stand-up-order.md`](00-stand-up-order.md) into hub model.
+2. Hub interviews + mints cards ([`../prompts/hub.md`](../prompts/hub.md)).
+3. Ping/pong; human seats peers; hub emits `intro`.
 
 ## Domains in examples
 
-Use only:
+`@example.com`, `@example.org`, `@example.net` only.
 
-- `@example.com`
-- `@example.org`
-- `@example.net`
-
-Never put real addresses in public materials.
-
-## Wire tag (public demo)
-
-Subjects in public examples:
+## Wire tags (placeholders)
 
 ```text
 [CATBUS] REQ: <event>
 [CATBUS] RES: <event>
 ```
 
-Production: private tag. See security notes.
+Production: private tag fleet-only (not published here).
